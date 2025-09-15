@@ -243,6 +243,9 @@ def render_sidebar():
             st.session_state.agent = initialize_agent()
             st.rerun()
     
+    # Debug mode toggle
+    st.session_state.debug_mode = st.sidebar.checkbox("🔧 Debug Mode")
+    
     # Clear conversation
     if st.sidebar.button("🗑️ Clear Conversation"):
         st.session_state.current_conversation = []
@@ -275,7 +278,7 @@ def render_customer_view():
         if message['sender'] == 'customer':
             st.markdown(f"""
             <div class="chat-message customer-message">
-                <strong>👤 You:</strong> {message['content']}
+                <strong>👤 You:</strong> {message['content']}<br>
                 <small style="color: #666;">{message['timestamp']}</small>
             </div>
             """, unsafe_allow_html=True)
@@ -285,10 +288,31 @@ def render_customer_view():
             
             st.markdown(f"""
             <div class="chat-message agent-message">
-                <strong>🤖 Support Agent:</strong> {message['content']}
+                <strong>🤖 Support Agent:</strong> {message['content']}<br>
                 <small style="color: #666;">{message['timestamp']}{confidence_display}{sources_display}</small>
             </div>
             """, unsafe_allow_html=True)
+            
+            # Show retrieved documents if available
+            retrieved_docs = message.get('retrieved_documents', [])
+            if retrieved_docs and st.checkbox(f"📚 Show Knowledge Sources Used ({len(retrieved_docs)} documents)", key=f"docs_{message['timestamp']}"):
+                for i, doc in enumerate(retrieved_docs):
+                    st.markdown(f"""
+                    <div class="rag-document" style="margin: 0.5rem 0; padding: 1rem; background: #f0f9ff; border-left: 4px solid #0ea5e9; border-radius: 8px;">
+                        <h4>📄 Document {i+1}: {doc.get('category', 'Unknown').title()} Policy</h4>
+                        <p><strong>Content:</strong> {doc.get('content', 'No content available')}</p>
+                        <p><strong>Similarity Score:</strong> {doc.get('similarity', 0):.3f} | 
+                           <strong>Keywords Matched:</strong> {', '.join(doc.get('matched_keywords', []))}
+                        </p>
+                        <details>
+                            <summary>Technical Details</summary>
+                            <p><strong>Document ID:</strong> {doc.get('id', 'N/A')}</p>
+                            <p><strong>All Keywords:</strong> {', '.join([k.strip() for k in doc.get('keywords', [])])}</p>
+                            <p><strong>Distance:</strong> {doc.get('distance', 0):.3f}</p>
+                            <p><strong>Relevance Score:</strong> {doc.get('relevance_score', 0)}</p>
+                        </details>
+                    </div>
+                    """, unsafe_allow_html=True)
     
     # Input form
     with st.form("customer_query_form"):
@@ -317,16 +341,36 @@ def process_customer_query(query):
     # Show processing indicator
     with st.spinner("🤖 AI Agent processing your request..."):
         try:
-            # Process through MCP agent
+            # Process through MCP agent with conversation context
             result = st.session_state.agent.process_customer_inquiry(
                 st.session_state.customer_email, 
-                query
+                query,
+                conversation_history=st.session_state.current_conversation
             )
             
+            # Debug: Show what we got from the agent
+            if st.session_state.get('debug_mode', False):
+                st.write("🔧 Debug - Agent Result Keys:", list(result.keys()))
+                st.write("🔧 Debug - Retrieved Documents:", len(result.get('retrieved_documents', [])))
+                if result.get('retrieved_documents'):
+                    st.write("🔧 Debug - First doc sample:", result['retrieved_documents'][0])
+            
             # Add agent response to conversation with enhanced metadata
+            response_content = result.get('response', 'I apologize, but I encountered an error processing your request.')
+            
+            # Ensure response content is clean text, not JSON
+            if isinstance(response_content, dict):
+                response_content = response_content.get('response', str(response_content))
+            elif isinstance(response_content, str) and response_content.startswith('{'):
+                try:
+                    parsed = json.loads(response_content)
+                    response_content = parsed.get('response', response_content)
+                except:
+                    pass  # Keep original if parsing fails
+            
             agent_msg = {
                 'sender': 'agent',
-                'content': result.get('response', 'I apologize, but I encountered an error processing your request.'),
+                'content': response_content,
                 'timestamp': datetime.now().strftime("%H:%M:%S"),
                 'confidence': result.get('confidence', 0),
                 'knowledge_sources': result.get('knowledge_sources', 0),
@@ -335,7 +379,10 @@ def process_customer_query(query):
                 'customer_tier': result.get('customer_tier', 'Unknown'),
                 'mcp_calls_made': result.get('mcp_calls_made', 0),
                 'processing_time_ms': result.get('processing_time_ms', 0),
-                'rag_documents_used': result.get('knowledge_categories', [])  # Store for dashboard
+                'rag_documents_used': result.get('knowledge_categories', []),  # Store for dashboard
+                'retrieved_documents': result.get('retrieved_documents', []),  # Full document details
+                'search_query': result.get('search_query', ''),
+                'document_retrieval_summary': result.get('document_retrieval_summary', {})
             }
             st.session_state.current_conversation.append(agent_msg)
             
@@ -421,15 +468,25 @@ def render_agent_dashboard():
             </div>
             """, unsafe_allow_html=True)
             
-            # Show RAG documents if available
-            categories = msg.get('knowledge_categories', [])
-            if categories:
+            # Show detailed RAG documents with search visualization
+            retrieved_docs = msg.get('retrieved_documents', [])
+            if retrieved_docs:
+                retrieval_summary = msg.get('document_retrieval_summary', {})
+                search_query = msg.get('search_query', 'N/A')
+                
+                st.markdown(f"**🔍 Search Process for: '{search_query}'**")
+                st.markdown(f"**📊 Retrieval Summary:** {retrieval_summary.get('total_retrieved', 0)} documents found | Avg Similarity: {retrieval_summary.get('avg_similarity', 0):.3f}")
+                
                 st.markdown("**📚 RAG Documents Retrieved:**")
-                for j, category in enumerate(categories):
+                for j, doc in enumerate(retrieved_docs):
+                    similarity_bar = "🟩" * int(doc.get('similarity', 0) * 10) + "⬜" * (10 - int(doc.get('similarity', 0) * 10))
                     st.markdown(f"""
                     <div class="rag-document">
-                        <strong>Document {j+1}:</strong> {category.title()} Policy<br>
-                        <small>Retrieved from knowledge base and used for context in response generation</small>
+                        <strong>📄 Document {j+1}:</strong> {doc.get('category', 'Unknown').title()} Policy
+                        <br><strong>Similarity:</strong> {similarity_bar} ({doc.get('similarity', 0):.3f})
+                        <br><strong>Keywords Matched:</strong> {', '.join(doc.get('matched_keywords', []))}
+                        <br><strong>Content Preview:</strong> {doc.get('content', 'No content')[:150]}{'...' if len(doc.get('content', '')) > 150 else ''}
+                        <br><small>Distance: {doc.get('distance', 0):.3f} | Relevance Score: {doc.get('relevance_score', 0)}</small>
                     </div>
                     """, unsafe_allow_html=True)
             else:
@@ -557,6 +614,58 @@ def render_mcp_monitor():
             st.metric("Agent Status", "Active" if st.session_state.agent else "Inactive")
         with col3:
             st.metric("Interface Mode", st.session_state.interface_mode)
+    
+    # Document Search Analytics
+    st.subheader("🔍 Document Search Analytics")
+    
+    # Debug: Show conversation state
+    if st.checkbox("🔧 Debug: Show Conversation Data"):
+        st.write("Conversation length:", len(st.session_state.current_conversation))
+        for i, msg in enumerate(st.session_state.current_conversation[-3:]):  # Last 3 messages
+            st.write(f"Message {i}: sender={msg.get('sender')}, has_retrieved_docs={bool(msg.get('retrieved_documents'))}")
+            if msg.get('retrieved_documents'):
+                st.write(f"  - Document count: {len(msg['retrieved_documents'])}")
+                st.write(f"  - Sample keys: {list(msg.keys())}")
+    
+    if st.session_state.current_conversation:
+        # Get search operations from conversation
+        search_operations = []
+        for msg in st.session_state.current_conversation:
+            if msg['sender'] == 'agent' and msg.get('retrieved_documents'):
+                search_operations.append(msg)
+        
+        if search_operations:
+            # Display search analytics
+            total_docs_retrieved = sum(len(msg.get('retrieved_documents', [])) for msg in search_operations)
+            unique_categories = set()
+            all_similarities = []
+            
+            for msg in search_operations:
+                for doc in msg.get('retrieved_documents', []):
+                    unique_categories.add(doc.get('category', 'unknown'))
+                    all_similarities.append(doc.get('similarity', 0))
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Total Searches", len(search_operations))
+            with col2:
+                st.metric("Documents Retrieved", total_docs_retrieved)
+            with col3:
+                avg_sim = sum(all_similarities) / len(all_similarities) if all_similarities else 0
+                st.metric("Avg Similarity", f"{avg_sim:.3f}")
+            
+            # Show category distribution
+            st.markdown("**📂 Knowledge Categories Accessed:**")
+            for category in unique_categories:
+                count = sum(1 for msg in search_operations 
+                           for doc in msg.get('retrieved_documents', []) 
+                           if doc.get('category') == category)
+                st.markdown(f"• {category.title()}: {count} retrievals")
+            
+        else:
+            st.info("No search operations recorded yet. Try asking questions in Customer View!")
+    else:
+        st.info("No conversation history available for search analytics.")
     
     # Recent MCP calls
     st.subheader("📡 Recent MCP Calls")

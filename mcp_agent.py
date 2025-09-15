@@ -101,7 +101,8 @@ class MCPCustomerSupportAgent:
                 except json.JSONDecodeError:
                     parsed_result = content
             else:
-                parsed_result = str(result)
+                # For direct data returns (like search_knowledge_base)
+                parsed_result = result
             
             self.log_mcp_call(tool_name, arguments, parsed_result, duration)
             return parsed_result
@@ -157,7 +158,7 @@ class MCPCustomerSupportAgent:
             logger.error(f"Ollama query failed: {e}")
             return f'{{"response": "I apologize, but I\'m experiencing technical difficulties with the AI model. Error: {str(e)}", "action_needed": "create_ticket", "confidence": 0}}'
     
-    async def process_customer_inquiry(self, customer_email: str, inquiry: str):
+    async def process_customer_inquiry(self, customer_email: str, inquiry: str, conversation_history: List[Dict] = None):
         """Process customer inquiry using MCP tools"""
         try:
             # Step 1: Look up customer via MCP
@@ -185,7 +186,19 @@ class MCPCustomerSupportAgent:
             else:
                 knowledge_context = "No specific company policy documents found for this query."
             
-            # Step 4: Query LLM
+            # Step 4: Prepare conversation context
+            conversation_context = ""
+            if conversation_history:
+                # Build conversation context from recent messages
+                recent_messages = conversation_history[-6:]  # Last 6 messages for context
+                for msg in recent_messages:
+                    if msg['sender'] == 'customer':
+                        conversation_context += f"Customer: {msg['content']}\n"
+                    else:
+                        conversation_context += f"Agent: {msg['content']}\n"
+                conversation_context = f"\nCONVERSATION HISTORY:\n{conversation_context}"
+            
+            # Step 5: Query LLM
             prompt = f"""
             You are a helpful customer support AI agent. Use the provided information to assist the customer.
             Respond ONLY with valid JSON.
@@ -195,14 +208,16 @@ class MCPCustomerSupportAgent:
             
             RELEVANT COMPANY POLICIES & INFORMATION:
             {knowledge_context}
+            {conversation_context}
             
             CUSTOMER INQUIRY: {inquiry}
             
             Instructions:
             1. Be helpful, friendly, and professional
             2. Use the provided company information to answer accurately
-            3. If you need to create a ticket or escalate, explain why
-            4. Personalize response based on customer tier if applicable
+            3. MAINTAIN CONVERSATION CONTEXT - remember what the customer previously asked about
+            4. If you need to create a ticket or escalate, explain why
+            5. Personalize response based on customer tier if applicable
             
             Respond with JSON containing exactly these fields:
             - "response": your helpful response to the customer
@@ -228,7 +243,7 @@ class MCPCustomerSupportAgent:
                 ticket = await self.create_ticket(customer_email, 'General Inquiry', inquiry)
                 result['ticket_created'] = ticket
             
-            # Add metadata
+            # Add metadata including detailed document information
             result['processed_at'] = datetime.now().isoformat()
             result['customer_tier'] = customer_info.get('tier', 'Unknown') if isinstance(customer_info, dict) else 'Unknown'
             result['knowledge_sources'] = len(relevant_docs) if isinstance(relevant_docs, list) else 0
@@ -237,6 +252,15 @@ class MCPCustomerSupportAgent:
                 if isinstance(doc, dict)
             ] if isinstance(relevant_docs, list) else []
             result['mcp_calls_made'] = len(self.mcp_calls_log)
+            
+            # Include detailed document information for UI display
+            result['retrieved_documents'] = relevant_docs if isinstance(relevant_docs, list) else []
+            result['search_query'] = inquiry
+            result['document_retrieval_summary'] = {
+                'total_retrieved': len(relevant_docs) if isinstance(relevant_docs, list) else 0,
+                'categories_found': list(set([doc.get('category', 'unknown') for doc in relevant_docs if isinstance(doc, dict)])) if isinstance(relevant_docs, list) else [],
+                'avg_similarity': round(sum([doc.get('similarity', 0) for doc in relevant_docs if isinstance(doc, dict)]) / len(relevant_docs), 3) if isinstance(relevant_docs, list) and len(relevant_docs) > 0 else 0
+            }
             
             return result
             
@@ -268,9 +292,15 @@ class CustomerSupportAgent:
     def _initialize_async(self):
         """Initialize the async MCP agent"""
         try:
-            # Create new event loop for this thread
-            self.loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(self.loop)
+            # Try to get existing event loop, create new one if needed
+            try:
+                self.loop = asyncio.get_event_loop()
+                if self.loop.is_closed():
+                    raise RuntimeError("Event loop is closed")
+            except RuntimeError:
+                # No event loop exists or it's closed, create a new one
+                self.loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(self.loop)
             
             # Start MCP server
             success = self.loop.run_until_complete(self.agent.start_mcp_server())
@@ -305,13 +335,13 @@ class CustomerSupportAgent:
             logger.error(f"Customer lookup error: {e}")
             return None
     
-    def process_customer_inquiry(self, customer_email: str, inquiry: str):
+    def process_customer_inquiry(self, customer_email: str, inquiry: str, conversation_history: List[Dict] = None):
         """Synchronous wrapper for inquiry processing"""
         if not self.loop:
             return {"response": "MCP system not initialized", "confidence": 0}
         try:
             return self.loop.run_until_complete(
-                self.agent.process_customer_inquiry(customer_email, inquiry)
+                self.agent.process_customer_inquiry(customer_email, inquiry, conversation_history)
             )
         except Exception as e:
             logger.error(f"Inquiry processing error: {e}")
