@@ -382,7 +382,8 @@ def process_customer_query(query):
                 'rag_documents_used': result.get('knowledge_categories', []),  # Store for dashboard
                 'retrieved_documents': result.get('retrieved_documents', []),  # Full document details
                 'search_query': result.get('search_query', ''),
-                'document_retrieval_summary': result.get('document_retrieval_summary', {})
+                'document_retrieval_summary': result.get('document_retrieval_summary', {}),
+                'llm_prompt': result.get('llm_prompt', '')  # Store the actual LLM prompt
             }
             st.session_state.current_conversation.append(agent_msg)
             
@@ -531,11 +532,11 @@ def render_agent_dashboard():
         else:
             st.info("No MCP operations logged yet.")
     
-    # Prompt Engineering Analysis
-    st.subheader("💭 Prompt Engineering Insights")
+    # LLM Prompt Analysis - Show actual prompts sent to LLM
+    st.subheader("💭 LLM Prompt Engineering Analysis")
     
     if st.session_state.current_conversation:
-        # Analyze the conversation for prompt effectiveness
+        # Get agent messages with prompts
         agent_messages = [msg for msg in st.session_state.current_conversation if msg['sender'] == 'agent']
         
         if agent_messages:
@@ -551,6 +552,46 @@ def render_agent_dashboard():
                 st.metric("Avg Sources per Query", f"{total_sources/len(agent_messages):.1f}")
                 ticket_rate = sum(1 for msg in agent_messages if msg.get('action_needed') == 'create_ticket') / len(agent_messages) * 100
                 st.metric("Escalation Rate", f"{ticket_rate:.1f}%")
+            
+            # Show actual LLM prompts
+            st.markdown("**📝 Recent LLM Prompts (with RAG Data)**")
+            
+            # Display the most recent prompts
+            for i, msg in enumerate(agent_messages[-2:]):  # Show last 2 prompts
+                if msg.get('llm_prompt'):
+                    st.markdown(f"""
+                    <div class="pipeline-step">
+                        <h4>🔤 LLM Prompt #{len(agent_messages) - 1 + i}</h4>
+                        <p><strong>Customer Query:</strong> {msg.get('search_query', 'N/A')}</p>
+                        <p><strong>Response Confidence:</strong> {msg.get('confidence', 'N/A')} | <strong>Knowledge Sources:</strong> {msg.get('knowledge_sources', 0)}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Show the actual prompt in an expandable section
+                    with st.expander(f"📄 View Full LLM Prompt #{len(agent_messages) - 1 + i}", expanded=False):
+                        st.markdown("**Complete prompt sent to LLM (including RAG data):**")
+                        st.code(msg['llm_prompt'], language="text")
+                        
+                        # Parse out RAG data section for easier viewing
+                        prompt_lines = msg['llm_prompt'].split('\n')
+                        rag_section_start = -1
+                        rag_section_end = -1
+                        
+                        for idx, line in enumerate(prompt_lines):
+                            if "RELEVANT COMPANY POLICIES & INFORMATION:" in line:
+                                rag_section_start = idx + 1
+                            elif "CUSTOMER INQUIRY:" in line and rag_section_start > -1:
+                                rag_section_end = idx - 1
+                                break
+                        
+                        if rag_section_start > -1 and rag_section_end > -1:
+                            rag_content = '\n'.join(prompt_lines[rag_section_start:rag_section_end]).strip()
+                            if rag_content:
+                                st.markdown("**🔍 RAG Knowledge Included in Prompt:**")
+                                st.text_area("RAG Data", rag_content, height=200, key=f"rag_{i}_{len(agent_messages)}")
+            
+            if not any(msg.get('llm_prompt') for msg in agent_messages):
+                st.info("No LLM prompts available. This feature requires the updated agent code.")
     
     # Clear conversation button
     if st.button("🗑️ Clear Conversation History"):

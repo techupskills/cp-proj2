@@ -238,6 +238,9 @@ class MCPCustomerSupportAgent:
                     "confidence": 0.5
                 }
             
+            # Store the actual prompt that was sent to LLM for debugging/analysis
+            result['llm_prompt'] = prompt
+            
             # Step 5: Create ticket if needed via MCP
             if result.get('action_needed') == 'create_ticket':
                 ticket = await self.create_ticket(customer_email, 'General Inquiry', inquiry)
