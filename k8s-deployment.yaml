@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-support-ai
+  labels:
+    app: customer-support-ai
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: customer-support-ai
+  template:
+    metadata:
+      labels:
+        app: customer-support-ai
+    spec:
+      containers:
+      - name: customer-support-ai
+        image: customer-support-ai:latest
+        ports:
+        - containerPort: 8501
+        env:
+        - name: OLLAMA_HOST
+          value: "0.0.0.0"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-support-ai-service
+spec:
+  selector:
+    app: customer-support-ai
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8501
+  type: LoadBalancer

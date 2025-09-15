@@ -1,0 +1,12 @@
+runtime: python311
+
+env_variables:
+  OLLAMA_HOST: "0.0.0.0"
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+
+resources:
+  cpu: 2
+  memory_gb: 4
