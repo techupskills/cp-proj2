@@ -269,50 +269,30 @@ def get_mcp_stats():
 
 def render_customer_view():
     """Render customer support interface"""
-    st.markdown('<div class="customer-interface">', unsafe_allow_html=True)
-    
     st.subheader("💬 Customer Support Chat")
     
-    # Display conversation history
-    for message in st.session_state.current_conversation:
-        if message['sender'] == 'customer':
-            st.markdown(f"""
-            <div class="chat-message customer-message">
-                <strong>👤 You:</strong> {message['content']}<br>
-                <small style="color: #666;">{message['timestamp']}</small>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            confidence_display = f" | Confidence: {message.get('confidence', 'N/A')}" if 'confidence' in message else ""
-            sources_display = f" | Sources: {message.get('knowledge_sources', 0)}" if 'knowledge_sources' in message else ""
-            
-            st.markdown(f"""
-            <div class="chat-message agent-message">
-                <strong>🤖 Support Agent:</strong> {message['content']}<br>
-                <small style="color: #666;">{message['timestamp']}{confidence_display}{sources_display}</small>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Show retrieved documents if available
-            retrieved_docs = message.get('retrieved_documents', [])
-            if retrieved_docs and st.checkbox(f"📚 Show Knowledge Sources Used ({len(retrieved_docs)} documents)", key=f"docs_{message['timestamp']}"):
-                for i, doc in enumerate(retrieved_docs):
-                    st.markdown(f"""
-                    <div class="rag-document" style="margin: 0.5rem 0; padding: 1rem; background: #f0f9ff; border-left: 4px solid #0ea5e9; border-radius: 8px;">
-                        <h4>📄 Document {i+1}: {doc.get('category', 'Unknown').title()} Policy</h4>
-                        <p><strong>Content:</strong> {doc.get('content', 'No content available')}</p>
-                        <p><strong>Similarity Score:</strong> {doc.get('similarity', 0):.3f} | 
-                           <strong>Keywords Matched:</strong> {', '.join(doc.get('matched_keywords', []))}
-                        </p>
-                        <details>
-                            <summary>Technical Details</summary>
-                            <p><strong>Document ID:</strong> {doc.get('id', 'N/A')}</p>
-                            <p><strong>All Keywords:</strong> {', '.join([k.strip() for k in doc.get('keywords', [])])}</p>
-                            <p><strong>Distance:</strong> {doc.get('distance', 0):.3f}</p>
-                            <p><strong>Relevance Score:</strong> {doc.get('relevance_score', 0)}</p>
-                        </details>
-                    </div>
-                    """, unsafe_allow_html=True)
+    # Display conversation history only if there are messages
+    if st.session_state.current_conversation:
+        for message in st.session_state.current_conversation:
+            if message['sender'] == 'customer':
+                st.markdown(f"""
+                <div class="chat-message customer-message">
+                    <strong>👤 You:</strong> {message['content']}<br>
+                    <small style="color: #666;">{message['timestamp']}</small>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                confidence_display = f" | Confidence: {message.get('confidence', 'N/A')}" if 'confidence' in message else ""
+                sources_display = f" | Sources: {message.get('knowledge_sources', 0)}" if 'knowledge_sources' in message else ""
+                
+                st.markdown(f"""
+                <div class="chat-message agent-message">
+                    <strong>🤖 Support Agent:</strong> {message['content']}<br>
+                    <small style="color: #666;">{message['timestamp']}{confidence_display}{sources_display}</small>
+                </div>
+                """, unsafe_allow_html=True)
+    else:
+        st.info("👋 Welcome! How can I help you today?")
     
     # Input form
     with st.form("customer_query_form"):
@@ -321,8 +301,6 @@ def render_customer_view():
         
         if submit and query:
             process_customer_query(query)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
 
 def process_customer_query(query):
     """Process customer query through MCP agent"""
@@ -478,18 +456,28 @@ def render_agent_dashboard():
                 st.markdown(f"**🔍 Search Process for: '{search_query}'**")
                 st.markdown(f"**📊 Retrieval Summary:** {retrieval_summary.get('total_retrieved', 0)} documents found | Avg Similarity: {retrieval_summary.get('avg_similarity', 0):.3f}")
                 
-                st.markdown("**📚 RAG Documents Retrieved:**")
-                for j, doc in enumerate(retrieved_docs):
-                    similarity_bar = "🟩" * int(doc.get('similarity', 0) * 10) + "⬜" * (10 - int(doc.get('similarity', 0) * 10))
-                    st.markdown(f"""
-                    <div class="rag-document">
-                        <strong>📄 Document {j+1}:</strong> {doc.get('category', 'Unknown').title()} Policy
-                        <br><strong>Similarity:</strong> {similarity_bar} ({doc.get('similarity', 0):.3f})
-                        <br><strong>Keywords Matched:</strong> {', '.join(doc.get('matched_keywords', []))}
-                        <br><strong>Content Preview:</strong> {doc.get('content', 'No content')[:150]}{'...' if len(doc.get('content', '')) > 150 else ''}
-                        <br><small>Distance: {doc.get('distance', 0):.3f} | Relevance Score: {doc.get('relevance_score', 0)}</small>
-                    </div>
-                    """, unsafe_allow_html=True)
+                # Show documents in an expandable section
+                with st.expander(f"📚 View Retrieved Knowledge Documents ({len(retrieved_docs)} found)", expanded=False):
+                    for j, doc in enumerate(retrieved_docs):
+                        similarity_bar = "🟩" * int(doc.get('similarity', 0) * 10) + "⬜" * (10 - int(doc.get('similarity', 0) * 10))
+                        st.markdown(f"""
+                        <div class="rag-document" style="margin: 0.5rem 0; padding: 1rem; background: #f0f9ff; border-left: 4px solid #0ea5e9; border-radius: 8px;">
+                            <h4>📄 Document {j+1}: {doc.get('category', 'Unknown').title()} Policy</h4>
+                            <p><strong>Content:</strong> {doc.get('content', 'No content available')}</p>
+                            <p><strong>Similarity Score:</strong> {similarity_bar} ({doc.get('similarity', 0):.3f}) | 
+                               <strong>Keywords Matched:</strong> {', '.join(doc.get('matched_keywords', []))}
+                            </p>
+                            <details>
+                                <summary>Technical Details</summary>
+                                <p><strong>Document ID:</strong> {doc.get('id', 'N/A')}</p>
+                                <p><strong>All Keywords:</strong> {', '.join([k.strip() for k in doc.get('keywords', [])])}</p>
+                                <p><strong>Distance:</strong> {doc.get('distance', 0):.3f}</p>
+                                <p><strong>Relevance Score:</strong> {doc.get('relevance_score', 0)}</p>
+                                <p><strong>Retrieval Method:</strong> {doc.get('retrieval_method', 'N/A')}</p>
+                                <p><strong>Source:</strong> {doc.get('source', 'Unknown')}</p>
+                            </details>
+                        </div>
+                        """, unsafe_allow_html=True)
             else:
                 st.markdown("**📚 No specific knowledge documents retrieved for this query**")
     else:
