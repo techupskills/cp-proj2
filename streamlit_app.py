@@ -45,123 +45,433 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Initialize interface mode
+if 'interface_mode' not in st.session_state:
+    st.session_state.interface_mode = "Customer View"
+
 # Display version
 st.sidebar.write(f"App Version: {APP_VERSION}")
 
-# Custom CSS
+# Enhanced Professional CSS
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    
+    /* Global Styles */
+    .stApp {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        max-width: 1200px;
+    }
+    
+    /* Professional Header */
     .main-header {
-        background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
-        padding: 1.5rem;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+        padding: 2.5rem 2rem;
+        border-radius: 16px;
         color: white;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         text-align: center;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        position: relative;
+        overflow: hidden;
     }
     
-    .mcp-server-panel {
-        background: #0f172a;
-        color: #e2e8f0;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-        border: 2px solid #1e293b;
+    .main-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.6;
     }
     
-    .mcp-call {
-        background: #f8fafc;
-        color: #1e293b;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 0.5rem 0;
-        border-left: 4px solid #3b82f6;
+    .main-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.025em;
+        position: relative;
+        z-index: 1;
     }
     
-    .mcp-success { 
-        border-left-color: #10b981; 
-        background: #f0fdf4;
-    }
-    .mcp-error { 
-        border-left-color: #ef4444; 
-        background: #fef2f2;
-    }
-    
-    .customer-interface {
-        background: #f8fafc;
-        padding: 2rem;
-        border-radius: 15px;
-        border: 1px solid #e2e8f0;
-        margin-top: 1rem;
+    .main-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+        font-weight: 400;
+        position: relative;
+        z-index: 1;
     }
     
-    .metric-card {
+    /* Professional Sidebar */
+    .css-1d391kg {
         background: white;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        border-left: 4px solid #3b82f6;
-        margin: 0.5rem 0;
+        border-right: 1px solid #e2e8f0;
+        box-shadow: 4px 0 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar-content {
+        padding: 1.5rem;
+    }
+    
+    /* Navigation Cards */
+    .nav-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .nav-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+        border-color: #3b82f6;
+    }
+    
+    .nav-card h3 {
+        color: #1e293b;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .nav-card p {
+        color: #64748b;
+        font-size: 0.875rem;
+        margin: 0;
+        line-height: 1.4;
+    }
+    
+    /* Enhanced Metric Cards */
+    .metric-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 2rem 1.5rem;
+        margin: 0.75rem 0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .metric-card h3 {
+        color: #64748b;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0 0 0.75rem 0;
+    }
+    
+    .metric-card h2 {
+        color: #1e293b;
+        font-size: 2.25rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1;
+    }
+    
+    /* Professional Chat Interface */
+    .chat-container {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e2e8f0;
     }
     
     .chat-message {
         background: white;
-        padding: 1rem;
-        border-radius: 10px;
-        margin: 0.5rem 0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+    
+    .chat-message:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     
     .agent-message {
-        background: #eff6ff;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
         border-left: 4px solid #3b82f6;
+        border-color: #bfdbfe;
     }
     
     .customer-message {
-        background: #f0fdf4;
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
         border-left: 4px solid #10b981;
+        border-color: #bbf7d0;
     }
     
+    .chat-message strong {
+        color: #1e293b;
+        font-weight: 600;
+    }
+    
+    .chat-timestamp {
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+    
+    /* Enhanced Forms */
+    .stTextArea textarea {
+        border-radius: 12px !important;
+        border: 2px solid #e2e8f0 !important;
+        padding: 1rem !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 0.95rem !important;
+        line-height: 1.5 !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .stTextArea textarea:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        outline: none !important;
+    }
+    
+    .stButton button {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 2rem !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        color: white !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .stButton button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2) !important;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    }
+    
+    /* Professional Components */
     .rag-document {
-        background: #f0f9ff;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 0.5rem 0;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid #bae6fd;
         border-left: 4px solid #0ea5e9;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
     
     .pipeline-step {
         background: white;
-        padding: 1rem;
-        border-radius: 6px;
-        margin: 0.5rem 0;
-        border-left: 3px solid #3b82f6;
         border: 1px solid #e2e8f0;
+        border-left: 4px solid #3b82f6;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        transition: all 0.2s ease;
+    }
+    
+    .pipeline-step:hover {
+        border-left-color: #2563eb;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    .pipeline-step h4 {
+        color: #1e293b;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
     }
     
     .rag-analysis {
-        background: #f8fafc;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin: 1rem 0;
-        border: 2px solid #e2e8f0;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 2rem 0;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
     
+    /* MCP Protocol Styling */
+    .mcp-call {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px solid #e2e8f0;
+        border-left: 4px solid #3b82f6;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin: 0.75rem 0;
+        font-family: 'Inter', monospace;
+        transition: all 0.2s ease;
+    }
+    
+    .mcp-success { 
+        border-left-color: #10b981;
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    }
+    
+    .mcp-error { 
+        border-left-color: #ef4444;
+        background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+    }
+    
+    /* Status Indicators */
     .status-indicator {
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         display: inline-block;
-        margin-right: 5px;
+        margin-right: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
-    .status-healthy { background-color: #10b981; }
-    .status-warning { background-color: #f59e0b; }
-    .status-error { background-color: #ef4444; }
+    .status-healthy { 
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
     
+    .status-warning { 
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+    
+    .status-error { 
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Professional Tables and Lists */
+    .professional-table {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .table-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 600;
+        color: #374151;
+    }
+    
+    .table-row {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.2s ease;
+    }
+    
+    .table-row:hover {
+        background-color: #f8fafc;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .main-header {
+            padding: 1.5rem 1rem;
+        }
+        
+        .main-header h1 {
+            font-size: 2rem;
+        }
+        
+        .metric-card {
+            padding: 1.5rem 1rem;
+        }
+        
+        .chat-container {
+            padding: 1.5rem;
+        }
+    }
+    
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+        border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+    }
+    
+    /* Hide Streamlit Elements */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    .stDeployButton {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
+
+# Add admin floating button styles
+st.markdown("""
+<style>
+.admin-floating-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    z-index: 9999;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.admin-floating-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 25px rgba(59, 130, 246, 0.6);
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -197,59 +507,281 @@ def initialize_agent():
         return None
 
 def render_header():
-    """Render main header"""
+    """Render professional main header with enhanced branding"""
     st.markdown("""
     <div class="main-header">
-        <h1>🔗 MCP Enterprise AI Support Platform</h1>
-        <p>Real-time Model Context Protocol demonstration with RAG and local AI processing</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="font-size: 3rem;">🔗</div>
+            <div style="text-align: left;">
+                <h1 style="margin: 0; font-size: 2.5rem; font-weight: 700; letter-spacing: -0.025em;">MCP Enterprise AI Platform</h1>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                    <span style="padding: 0.25rem 0.75rem; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 0.875rem; font-weight: 500;">RAG Enabled</span>
+                    <span style="padding: 0.25rem 0.75rem; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 0.875rem; font-weight: 500;">Real-time Processing</span>
+                    <span style="padding: 0.25rem 0.75rem; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 0.875rem; font-weight: 500;">MCP Protocol</span>
+                </div>
+            </div>
+        </div>
+        <p style="margin: 0; font-size: 1.1rem; opacity: 0.9; font-weight: 400; max-width: 600px; margin: 0 auto; line-height: 1.5;">
+            Advanced customer support powered by Model Context Protocol, Retrieval-Augmented Generation, and real-time AI processing
+        </p>
     </div>
     """, unsafe_allow_html=True)
+    
 
 def render_sidebar():
-    """Render sidebar with controls and metrics"""
-    st.sidebar.title("🎛️ Control Panel")
+    """Render professional sidebar with enhanced controls and metrics"""
+    # Professional sidebar header
+    st.sidebar.markdown("""
+    <div style="text-align: center; padding: 1.5rem 0 2rem 0; border-bottom: 1px solid #e2e8f0; margin-bottom: 2rem;">
+        <h2 style="margin: 0; color: #1e293b; font-size: 1.25rem; font-weight: 600;">🎛️ Control Center</h2>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.875rem;">Manage your AI support experience</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Interface mode selector
-    st.session_state.interface_mode = st.sidebar.selectbox(
-        "View Mode",
-        ["Customer View", "Agent Dashboard", "MCP Protocol Monitor"],
-        index=0
+    # Navigation Cards
+    st.sidebar.markdown("### 🧭 Navigation")
+    
+    # Create navigation options with descriptions
+    nav_options = {
+        "Customer View": {"icon": "💬", "desc": "Interactive chat interface"},
+        "Agent Dashboard": {"icon": "🤖", "desc": "Analytics and RAG insights"}, 
+        "MCP Protocol Monitor": {"icon": "🔗", "desc": "Technical monitoring"}
+    }
+    
+    for option, details in nav_options.items():
+        is_selected = st.session_state.get('interface_mode', 'Customer View') == option
+        card_style = """
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
+        color: white; 
+        border: 2px solid #3b82f6;
+        """ if is_selected else """
+        background: white; 
+        border: 1px solid #e2e8f0;
+        """
+        
+        if st.sidebar.button(
+            f"{details['icon']} {option}",
+            key=f"nav_{option}",
+            help=details['desc'],
+            use_container_width=True
+        ):
+            st.session_state.interface_mode = option
+            st.rerun()
+        
+        if is_selected:
+            st.sidebar.markdown(f"<small style='color: #64748b; margin-left: 0.5rem;'>📍 Currently viewing</small>", unsafe_allow_html=True)
+    
+    st.sidebar.markdown("---")
+    
+    # Customer Context Section
+    st.sidebar.markdown("### 👤 Customer Context")
+    
+    customer_options = {
+        "john.doe@email.com": {"name": "John Doe", "tier": "Premium", "icon": "👔"},
+        "sarah.smith@email.com": {"name": "Sarah Smith", "tier": "Standard", "icon": "👩"},
+        "new.customer@email.com": {"name": "New Customer", "tier": "Guest", "icon": "✨"}
+    }
+    
+    # Custom customer selector with enhanced display
+    # Get current customer email from session state or default
+    current_customer = st.session_state.get('customer_email', 'john.doe@email.com')
+    
+    # Get index of current customer for selectbox
+    customer_keys = list(customer_options.keys())
+    try:
+        current_index = customer_keys.index(current_customer)
+    except ValueError:
+        current_index = 0
+        current_customer = customer_keys[0]
+    
+    selected_customer = st.sidebar.selectbox(
+        "Select Customer Profile",
+        customer_keys,
+        index=current_index,
+        format_func=lambda x: f"{customer_options[x]['icon']} {customer_options[x]['name']} ({customer_options[x]['tier']})",
+        key="customer_email_selector"
     )
     
-    # Customer selector
-    st.sidebar.subheader("👤 Customer Context")
-    st.session_state.customer_email = st.sidebar.selectbox(
-        "Select Customer",
-        ["john.doe@email.com", "sarah.smith@email.com", "new.customer@email.com"],
-        index=0
-    )
+    # Update session state only if customer changed
+    if selected_customer != st.session_state.get('customer_email'):
+        st.session_state.customer_email = selected_customer
     
-    # Agent metrics
-    st.sidebar.subheader("📊 Agent Metrics")
+    # Display selected customer info
+    customer_info = customer_options[selected_customer]
+    st.sidebar.markdown(f"""
+    <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 1rem; border-radius: 8px; margin: 0.5rem 0;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 1.5rem;">{customer_info['icon']}</span>
+            <div>
+                <div style="font-weight: 600; color: #1e293b;">{customer_info['name']}</div>
+                <div style="font-size: 0.75rem; color: #64748b;">{customer_info['tier']} Customer</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.sidebar.markdown("---")
+    
+    # System Performance Metrics
+    st.sidebar.markdown("### 📊 Performance Metrics")
+    
     metrics = st.session_state.agent_metrics
-    st.sidebar.metric("Total Queries", metrics['total_queries'])
-    st.sidebar.metric("Resolved Queries", metrics['resolved_queries'])
-    st.sidebar.metric("Tickets Created", metrics['tickets_created'])
     
-    # MCP Server Status
-    st.sidebar.subheader("🔗 MCP Server Status")
+    # Enhanced metrics display
+    col1, col2 = st.sidebar.columns(2)
+    
+    with col1:
+        st.metric(
+            label="Total Queries",
+            value=metrics['total_queries'],
+            delta=f"+{metrics['total_queries'] - metrics['resolved_queries']}" if metrics['total_queries'] > 0 else None
+        )
+        
+        st.metric(
+            label="Tickets Created", 
+            value=metrics['tickets_created'],
+            delta="+1" if metrics['tickets_created'] > 0 else None
+        )
+    
+    with col2:
+        st.metric(
+            label="Resolved",
+            value=metrics['resolved_queries'],
+            delta=f"{(metrics['resolved_queries']/max(metrics['total_queries'],1)*100):.0f}%" if metrics['total_queries'] > 0 else "0%"
+        )
+        
+        # Success rate
+        success_rate = (metrics['resolved_queries'] / max(metrics['total_queries'], 1)) * 100
+        st.metric(
+            label="Success Rate",
+            value=f"{success_rate:.0f}%",
+            delta="Excellent" if success_rate > 80 else "Good" if success_rate > 60 else "Improving"
+        )
+    
+    st.sidebar.markdown("---")
+    
+    # System Status
+    st.sidebar.markdown("### 🔗 System Status")
+    
+    # Agent status with enhanced display
     if st.session_state.agent:
-        st.sidebar.success("🟢 Connected")
-        if st.sidebar.button("Refresh Stats"):
+        st.sidebar.markdown("""
+        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border-radius: 8px; margin: 0.5rem 0;">
+            <div class="status-indicator status-healthy"></div>
+            <div>
+                <div style="font-weight: 600; color: #059669;">MCP Agent Online</div>
+                <div style="font-size: 0.75rem; color: #64748b;">All systems operational</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.sidebar.button("🔄 Refresh Stats", use_container_width=True):
             get_mcp_stats()
     else:
-        st.sidebar.error("🔴 Disconnected")
-        if st.sidebar.button("Reconnect"):
+        st.sidebar.markdown("""
+        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%); border-radius: 8px; margin: 0.5rem 0;">
+            <div class="status-indicator status-error"></div>
+            <div>
+                <div style="font-weight: 600; color: #dc2626;">MCP Agent Offline</div>
+                <div style="font-size: 0.75rem; color: #64748b;">Connection needed</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.sidebar.button("🔌 Reconnect Agent", use_container_width=True, type="primary"):
             st.session_state.agent = initialize_agent()
             st.rerun()
     
-    # Debug mode toggle
-    st.session_state.debug_mode = st.sidebar.checkbox("🔧 Debug Mode")
+    st.sidebar.markdown("---")
     
-    # Clear conversation
-    if st.sidebar.button("🗑️ Clear Conversation"):
+    # Advanced Controls
+    st.sidebar.markdown("### ⚙️ Advanced Controls")
+    
+    # Debug mode with better styling
+    debug_enabled = st.sidebar.checkbox(
+        "🔧 Enable Debug Mode", 
+        value=st.session_state.get('debug_mode', False),
+        help="Show detailed technical information and logs"
+    )
+    st.session_state.debug_mode = debug_enabled
+    
+    # Action buttons
+    col1, col2 = st.sidebar.columns(2)
+    
+    with col1:
+        if st.button("🗑️ Clear", use_container_width=True, help="Clear conversation history"):
+            st.session_state.current_conversation = []
+            st.rerun()
+    
+    with col2:
+        if st.button("📊 Stats", use_container_width=True, help="Refresh all statistics"):
+            get_mcp_stats()
+            st.rerun()
+    
+    # Quick Actions
+    st.sidebar.markdown("### ⚡ Quick Actions")
+    
+    # Quick Actions with actual functionality
+    if st.sidebar.button("💬 New Chat", help="Start a fresh conversation", use_container_width=True):
         st.session_state.current_conversation = []
+        st.session_state.agent_metrics = {
+            'total_queries': 0,
+            'resolved_queries': 0,
+            'tickets_created': 0
+        }
+        st.sidebar.success("✅ New conversation started!")
         st.rerun()
+    
+    if st.sidebar.button("📁 Export Data", help="Export conversation history as JSON", use_container_width=True):
+        if st.session_state.current_conversation:
+            import json
+            from datetime import datetime
+            
+            export_data = {
+                "export_timestamp": datetime.now().isoformat(),
+                "customer_email": st.session_state.get('customer_email', 'unknown'),
+                "conversation_count": len(st.session_state.current_conversation),
+                "metrics": st.session_state.agent_metrics,
+                "conversation_history": st.session_state.current_conversation
+            }
+            
+            # Create downloadable JSON
+            st.sidebar.download_button(
+                label="⬇️ Download JSON",
+                data=json.dumps(export_data, indent=2),
+                file_name=f"conversation_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                mime="application/json",
+                use_container_width=True
+            )
+        else:
+            st.sidebar.warning("No conversation data to export")
+    
+    # Test Mode toggle
+    test_mode_enabled = st.sidebar.checkbox(
+        "🎯 Test Mode", 
+        value=st.session_state.get('test_mode', False),
+        help="Enable mock responses and testing features"
+    )
+    if test_mode_enabled != st.session_state.get('test_mode', False):
+        st.session_state.test_mode = test_mode_enabled
+        if test_mode_enabled:
+            st.sidebar.success("✅ Test mode enabled - AI responses will use mock data")
+        else:
+            st.sidebar.info("Test mode disabled - Normal AI responses")
+    
+    st.sidebar.markdown("---")
+    
+    # Footer info
+    st.sidebar.markdown(f"""
+    <div style="text-align: center; padding: 1rem 0; color: #64748b; font-size: 0.75rem;">
+        <div style="margin-bottom: 0.5rem;">
+            <strong>App Version:</strong> {APP_VERSION}
+        </div>
+        <div>
+            🚀 AI Enterprise Platform
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 def get_mcp_stats():
     """Get MCP server statistics"""
@@ -268,39 +800,166 @@ def get_mcp_stats():
     return None
 
 def render_customer_view():
-    """Render customer support interface"""
-    st.subheader("💬 Customer Support Chat")
+    """Render customer support interface with professional styling"""
+    # Chat header section
+    st.markdown("""
+    <div class="chat-container">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0;">
+            <div>
+                <h2 style="margin: 0; color: #1e293b; font-size: 1.5rem; font-weight: 600;">Customer Support Chat</h2>
+                <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.95rem;">Get instant help from our AI-powered support assistant</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="status-indicator status-healthy"></div>
+                <span style="color: #059669; font-weight: 500; font-size: 0.875rem;">Online</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Display conversation history only if there are messages
+    # Display conversation history (only if there are messages)
     if st.session_state.current_conversation:
-        for message in st.session_state.current_conversation:
+        for i, message in enumerate(st.session_state.current_conversation):
             if message['sender'] == 'customer':
                 st.markdown(f"""
-                <div class="chat-message customer-message">
-                    <strong>👤 You:</strong> {message['content']}<br>
-                    <small style="color: #666;">{message['timestamp']}</small>
+                <div class="chat-container" style="margin-top: 1rem;">
+                    <div class="chat-message customer-message" style="margin-left: 2rem;">
+                        <div style="display: flex; align-items: start; gap: 0.75rem;">
+                            <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem;">You</div>
+                            <div style="flex: 1;">
+                                <div style="margin-bottom: 0.5rem;">
+                                    <span style="color: #1e293b; font-weight: 600;">You</span>
+                                    <span class="chat-timestamp" style="margin-left: 0.5rem;">{message['timestamp']}</span>
+                                </div>
+                                <div style="color: #374151; line-height: 1.5;">{message['content']}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
             else:
-                confidence_display = f" | Confidence: {message.get('confidence', 'N/A')}" if 'confidence' in message else ""
-                sources_display = f" | Sources: {message.get('knowledge_sources', 0)}" if 'knowledge_sources' in message else ""
-                
                 st.markdown(f"""
-                <div class="chat-message agent-message">
-                    <strong>🤖 Support Agent:</strong> {message['content']}<br>
-                    <small style="color: #666;">{message['timestamp']}{confidence_display}{sources_display}</small>
+                <div class="chat-container" style="margin-top: 1rem;">
+                    <div class="chat-message agent-message">
+                        <div style="display: flex; align-items: start; gap: 0.75rem;">
+                            <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem;">🤖</div>
+                            <div style="flex: 1;">
+                                <div style="margin-bottom: 0.5rem;">
+                                    <span style="color: #1e293b; font-weight: 600;">AI Support Agent</span>
+                                    <span class="chat-timestamp" style="margin-left: 0.5rem;">{message['timestamp']}</span>
+                                </div>
+                                <div style="color: #374151; line-height: 1.6;">{message['content']}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
-    else:
-        st.info("👋 Welcome! How can I help you today?")
     
-    # Input form
-    with st.form("customer_query_form"):
-        query = st.text_area("How can we help you today?", height=100, placeholder="Example: I need to return my headphones, how do I do that?")
-        submit = st.form_submit_button("Send Message", use_container_width=True)
+    # Input form section - always visible and prominent
+    if not st.session_state.current_conversation:
+        st.markdown("""
+        <div class="chat-container" style="margin-top: 1.5rem;">
+            <h4 style="margin: 0 0 1rem 0; color: #1e293b; font-size: 1.2rem; font-weight: 600;">How can I help you today?</h4>
+            <p style="margin: 0 0 1.5rem 0; color: #64748b; font-size: 0.95rem;">I'm here to assist with any questions about products, orders, returns, shipping, or account issues.</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
+                <div style="padding: 0.75rem; background: #f0f9ff; border-radius: 6px; border-left: 3px solid #3b82f6; font-size: 0.875rem;">
+                    <strong>Returns & Refunds</strong><br>
+                    <small>30-day return policy</small>
+                </div>
+                <div style="padding: 0.75rem; background: #f0fdf4; border-radius: 6px; border-left: 3px solid #10b981; font-size: 0.875rem;">
+                    <strong>Shipping & Delivery</strong><br>
+                    <small>Tracking and delivery times</small>
+                </div>
+                <div style="padding: 0.75rem; background: #fefbf2; border-radius: 6px; border-left: 3px solid #f59e0b; font-size: 0.875rem;">
+                    <strong>Account Help</strong><br>
+                    <small>Password and settings</small>
+                </div>
+                <div style="padding: 0.75rem; background: #fef2f2; border-radius: 6px; border-left: 3px solid #ef4444; font-size: 0.875rem;">
+                    <strong>Product Information</strong><br>
+                    <small>Specs and warranties</small>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div class="chat-container" style="margin-top: 1.5rem;">
+            <h4 style="margin: 0 0 1.5rem 0; color: #1e293b; font-size: 1.2rem; font-weight: 600;">Continue the conversation</h4>
+        """, unsafe_allow_html=True)
+    
+    with st.form("customer_query_form", clear_on_submit=True):
+        col1, col2 = st.columns([4, 1])
         
-        if submit and query:
-            process_customer_query(query)
+        with col1:
+            query = st.text_area(
+                "",
+                height=80,
+                placeholder="Type your question here... (e.g., 'I need to return my headphones', 'When will my order arrive?', 'I forgot my password')",
+                label_visibility="collapsed"
+            )
+        
+        with col2:
+            st.markdown('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+            submit = st.form_submit_button("✈️ Send", use_container_width=True, type="primary")
+            
+            # Quick action buttons
+            col_a, col_b = st.columns(2)
+            with col_a:
+                if st.form_submit_button("🔄 Returns", use_container_width=True):
+                    st.session_state.quick_query = "I need help with returning an item"
+            with col_b:
+                if st.form_submit_button("🚚 Shipping", use_container_width=True):
+                    st.session_state.quick_query = "I have a question about shipping"
+        
+        # Handle quick queries
+        if hasattr(st.session_state, 'quick_query'):
+            query = st.session_state.quick_query
+            submit = True
+            del st.session_state.quick_query
+        
+        if submit and query and query.strip():
+            process_customer_query(query.strip())
+    
+    # Close the input form container
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def generate_test_response(query, customer_email):
+    """Generate mock response for testing purposes"""
+    import time
+    import random
+    
+    # Simulate processing time
+    time.sleep(random.uniform(0.5, 2.0))
+    
+    # Generate mock response based on query keywords
+    query_lower = query.lower()
+    
+    mock_responses = {
+        'return': "TEST MODE: I can help with returns! This is a mock response for testing. In production, this would connect to our real return system.",
+        'shipping': "TEST MODE: Mock shipping information. Standard: 3-5 days, Express: 1-2 days. This is test data only.",
+        'password': "TEST MODE: For password resets, this would normally connect to our authentication system. This is a test response.",
+        'account': "TEST MODE: Account assistance mock response. Real system would access customer database.",
+        'product': "TEST MODE: Product information mock response. Would normally query our product catalog.",
+        'default': "TEST MODE: This is a mock AI response for testing purposes. The query was processed in test mode."
+    }
+    
+    # Find appropriate response
+    response_key = 'default'
+    for key in mock_responses.keys():
+        if key in query_lower and key != 'default':
+            response_key = key
+            break
+    
+    return {
+        'response': mock_responses[response_key],
+        'confidence': random.uniform(0.7, 0.95),
+        'knowledge_sources': random.randint(1, 4),
+        'knowledge_categories': ['Test Category'],
+        'action_needed': 'none',
+        'customer_tier': 'Test Customer',
+        'mcp_calls_made': 0,
+        'processing_time_ms': random.randint(500, 2000),
+        'test_mode': True
+    }
 
 def process_customer_query(query):
     """Process customer query through MCP agent"""
@@ -317,14 +976,20 @@ def process_customer_query(query):
     st.session_state.current_conversation.append(customer_msg)
     
     # Show processing indicator
-    with st.spinner("🤖 AI Agent processing your request..."):
+    spinner_text = "🧪 Test Mode - Generating mock response..." if st.session_state.get('test_mode', False) else "🤖 AI Agent processing your request..."
+    with st.spinner(spinner_text):
         try:
-            # Process through MCP agent with conversation context
-            result = st.session_state.agent.process_customer_inquiry(
-                st.session_state.customer_email, 
-                query,
-                conversation_history=st.session_state.current_conversation
-            )
+            # Check if test mode is enabled
+            if st.session_state.get('test_mode', False):
+                # Generate mock response for testing
+                result = generate_test_response(query, st.session_state.customer_email)
+            else:
+                # Process through MCP agent with conversation context
+                result = st.session_state.agent.process_customer_inquiry(
+                    st.session_state.customer_email, 
+                    query,
+                    conversation_history=st.session_state.current_conversation
+                )
             
             # Debug: Show what we got from the agent
             if st.session_state.get('debug_mode', False):
@@ -396,36 +1061,57 @@ def process_customer_query(query):
     st.rerun()
 
 def render_agent_dashboard():
-    """Render agent dashboard with detailed metrics and RAG information"""
-    st.subheader("🤖 Agent Dashboard with RAG Analysis")
+    """Render professional agent dashboard with detailed metrics and RAG information"""
+    # Professional dashboard header (without container, just styling)
+    st.markdown("""
+    <div style="text-align: center; margin-bottom: 2rem; padding: 2rem; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; border: 1px solid #e2e8f0;">
+        <h2 style="margin: 0; color: #1e293b; font-size: 1.75rem; font-weight: 600;">Agent Performance Dashboard</h2>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 1rem;">Real-time analytics and RAG pipeline insights</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    # Metrics row
+    # Enhanced metrics row with better styling
     col1, col2, col3 = st.columns(3)
+    
+    metrics = st.session_state.agent_metrics
+    resolved = metrics['resolved_queries']
+    total = metrics['total_queries']
+    rate = (resolved / total * 100) if total > 0 else 0
     
     with col1:
         st.markdown(f"""
         <div class="metric-card">
-            <h3>Total Queries</h3>
-            <h2>{st.session_state.agent_metrics['total_queries']}</h2>
+            <h3>Total Queries Processed</h3>
+            <h2>{total}</h2>
+            <div style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
+                {'+' + str(total - resolved) if total > resolved else '0'} pending
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
-        resolved = st.session_state.agent_metrics['resolved_queries']
-        total = st.session_state.agent_metrics['total_queries']
-        rate = (resolved / total * 100) if total > 0 else 0
+        rate_color = '#059669' if rate > 80 else '#f59e0b' if rate > 60 else '#ef4444'
+        rate_percentage = f"{rate:.1f}"
         st.markdown(f"""
         <div class="metric-card">
-            <h3>Resolution Rate</h3>
-            <h2>{rate:.1f}%</h2>
+            <h3>Resolution Success Rate</h3>
+            <h2 style="color: {rate_color};">{rate_percentage}%</h2>
+            <div style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
+                {resolved} of {total} resolved
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
+        escalation_rate = (metrics['tickets_created'] / max(total, 1) * 100) if total > 0 else 0
+        escalation_percentage = f"{escalation_rate:.1f}"
         st.markdown(f"""
         <div class="metric-card">
-            <h3>Tickets Created</h3>
-            <h2>{st.session_state.agent_metrics['tickets_created']}</h2>
+            <h3>Support Tickets Created</h3>
+            <h2>{metrics['tickets_created']}</h2>
+            <div style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
+                {escalation_percentage}% escalation rate
+            </div>
         </div>
         """, unsafe_allow_html=True)
     
@@ -440,7 +1126,7 @@ def render_agent_dashboard():
         for i, msg in enumerate(agent_messages[-3:]):  # Show last 3 agent responses
             st.markdown(f"""
             <div class="pipeline-step">
-                <h4>🤖 Agent Response #{len(agent_messages) - 2 + i}</h4>
+                <h4>Agent Response #{len(agent_messages) - 2 + i}</h4>
                 <p><strong>Response:</strong> {msg['content'][:200]}{'...' if len(msg['content']) > 200 else ''}</p>
                 <p><strong>Confidence:</strong> {msg.get('confidence', 'N/A')} | <strong>Knowledge Sources Used:</strong> {msg.get('knowledge_sources', 0)}</p>
                 <p><strong>Customer Tier:</strong> {msg.get('customer_tier', 'Unknown')} | <strong>Processing Time:</strong> {msg.get('processing_time_ms', 'N/A')}ms</p>
@@ -453,25 +1139,27 @@ def render_agent_dashboard():
                 retrieval_summary = msg.get('document_retrieval_summary', {})
                 search_query = msg.get('search_query', 'N/A')
                 
-                st.markdown(f"**🔍 Search Process for: '{search_query}'**")
+                st.markdown(f"**Search Process for: '{search_query}'**")
                 st.markdown(f"**📊 Retrieval Summary:** {retrieval_summary.get('total_retrieved', 0)} documents found | Avg Similarity: {retrieval_summary.get('avg_similarity', 0):.3f}")
                 
                 # Show documents in an expandable section
                 with st.expander(f"📚 View Retrieved Knowledge Documents ({len(retrieved_docs)} found)", expanded=False):
                     for j, doc in enumerate(retrieved_docs):
                         similarity_bar = "🟩" * int(doc.get('similarity', 0) * 10) + "⬜" * (10 - int(doc.get('similarity', 0) * 10))
+                        similarity_score = f"{doc.get('similarity', 0):.3f}"
+                        keywords_joined = ', '.join(doc.get('matched_keywords', []))
                         st.markdown(f"""
                         <div class="rag-document" style="margin: 0.5rem 0; padding: 1rem; background: #f0f9ff; border-left: 4px solid #0ea5e9; border-radius: 8px;">
-                            <h4>📄 Document {j+1}: {doc.get('category', 'Unknown').title()} Policy</h4>
+                            <h4>Document {j+1}: {doc.get('category', 'Unknown').title()} Policy</h4>
                             <p><strong>Content:</strong> {doc.get('content', 'No content available')}</p>
-                            <p><strong>Similarity Score:</strong> {similarity_bar} ({doc.get('similarity', 0):.3f}) | 
-                               <strong>Keywords Matched:</strong> {', '.join(doc.get('matched_keywords', []))}
+                            <p><strong>Similarity Score:</strong> {similarity_bar} ({similarity_score}) | 
+                               <strong>Keywords Matched:</strong> {keywords_joined}
                             </p>
                             <details>
                                 <summary>Technical Details</summary>
                                 <p><strong>Document ID:</strong> {doc.get('id', 'N/A')}</p>
                                 <p><strong>All Keywords:</strong> {', '.join([k.strip() for k in doc.get('keywords', [])])}</p>
-                                <p><strong>Distance:</strong> {doc.get('distance', 0):.3f}</p>
+                                <p><strong>Distance:</strong> {doc.get('distance', 0)}</p>
                                 <p><strong>Relevance Score:</strong> {doc.get('relevance_score', 0)}</p>
                                 <p><strong>Retrieval Method:</strong> {doc.get('retrieval_method', 'N/A')}</p>
                                 <p><strong>Source:</strong> {doc.get('source', 'Unknown')}</p>
@@ -575,7 +1263,7 @@ def render_agent_dashboard():
                         if rag_section_start > -1 and rag_section_end > -1:
                             rag_content = '\n'.join(prompt_lines[rag_section_start:rag_section_end]).strip()
                             if rag_content:
-                                st.markdown("**🔍 RAG Knowledge Included in Prompt:**")
+                                st.markdown("**RAG Knowledge Included in Prompt:**")
                                 st.text_area("RAG Data", rag_content, height=200, key=f"rag_{i}_{len(agent_messages)}")
             
             if not any(msg.get('llm_prompt') for msg in agent_messages):
@@ -718,6 +1406,93 @@ def render_mcp_monitor():
         time.sleep(5)
         st.rerun()
 
+def render_admin_popup():
+    """Render floating admin button with popup functionality"""
+    # Initialize admin popup state
+    if 'show_admin_popup' not in st.session_state:
+        st.session_state.show_admin_popup = False
+    
+    # Create the floating admin button with Streamlit button in a fixed container
+    # Place it in the main content area with absolute positioning
+    with st.container():
+        # Create a floating admin button that actually works
+        admin_col1, admin_col2 = st.columns([9, 1])
+        with admin_col2:
+            # Position this button at the bottom right
+            st.markdown("""
+            <style>
+            div[data-testid="column"]:nth-child(2) > div > div > div > button {
+                position: fixed !important;
+                bottom: 30px !important;
+                right: 30px !important;
+                z-index: 9999 !important;
+                width: 60px !important;
+                height: 60px !important;
+                border-radius: 50% !important;
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+                border: none !important;
+                color: white !important;
+                font-size: 24px !important;
+                box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4) !important;
+                transition: all 0.3s ease !important;
+            }
+            div[data-testid="column"]:nth-child(2) > div > div > div > button:hover {
+                transform: scale(1.1) !important;
+                box-shadow: 0 12px 25px rgba(59, 130, 246, 0.6) !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            if st.button("⚙️", key="floating_admin_button", help="Admin Panel - Switch Views"):
+                st.session_state.show_admin_popup = not st.session_state.show_admin_popup
+                st.rerun()
+    
+    # Show popup when admin button is clicked
+    if st.session_state.show_admin_popup:
+        # Simple popup without overlay that blocks clicks
+        st.markdown("---")
+        
+        # Create a prominent popup box
+        with st.container():
+            st.markdown("""
+            <div style="
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                border: 2px solid #3b82f6;
+                border-radius: 16px;
+                padding: 1.5rem;
+                margin: 1rem 0;
+                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+            ">
+            """, unsafe_allow_html=True)
+            
+            st.markdown("### 🛠️ Admin Panel - Quick View Switcher")
+            st.markdown("**Click any button to switch views:**")
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                if st.button("💬 Customer View", key="popup_customer", use_container_width=True, type="primary"):
+                    st.session_state.interface_mode = "Customer View"
+                    st.session_state.show_admin_popup = False
+                    st.rerun()
+            with col2:
+                if st.button("🤖 Agent Dashboard", key="popup_agent", use_container_width=True, type="primary"):
+                    st.session_state.interface_mode = "Agent Dashboard"
+                    st.session_state.show_admin_popup = False
+                    st.rerun()
+            with col3:
+                if st.button("🔗 MCP Monitor", key="popup_mcp", use_container_width=True, type="primary"):
+                    st.session_state.interface_mode = "MCP Protocol Monitor"
+                    st.session_state.show_admin_popup = False
+                    st.rerun()
+            
+            st.markdown("**Keyboard Shortcuts:** `Ctrl+1`, `Ctrl+2`, `Ctrl+3`")
+            
+            if st.button("✖️ Close Admin Panel", key="popup_close", use_container_width=True):
+                st.session_state.show_admin_popup = False
+                st.rerun()
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+
 def main():
     """Main application logic"""
     init_session_state()
@@ -735,6 +1510,9 @@ def main():
             else:
                 st.error("❌ Failed to initialize MCP Agent. Please check your setup.")
                 st.stop()
+    
+    # Render admin popup (always available)
+    render_admin_popup()
     
     # Render appropriate interface based on mode
     if st.session_state.interface_mode == "Customer View":
