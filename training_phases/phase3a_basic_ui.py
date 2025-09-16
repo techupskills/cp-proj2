@@ -135,18 +135,110 @@ def setup_streamlit_config():
     )
 
 def apply_custom_css():
-    """Apply custom CSS styling for the application."""
+    """Apply professional CSS styling for the application."""
     st.markdown("""
     <style>
-        /* Main header styling */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        /* Global Styles */
+        .stApp {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .main .block-container {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            max-width: 1200px;
+        }
+        
+        /* Professional Header */
         .main-header {
-            background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
-            padding: 2rem;
-            border-radius: 15px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+            padding: 2.5rem 2rem;
+            border-radius: 16px;
             color: white;
+            margin-bottom: 2.5rem;
             text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="white" opacity="0.1"/><circle cx="80" cy="80" r="1" fill="white" opacity="0.1"/><circle cx="40" cy="60" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.1;
+            pointer-events: none;
+        }
+        
+        .main-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .main-header p {
+            margin: 1rem 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Professional Sidebar */
+        .css-1d391kg {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-right: 1px solid #e2e8f0;
+        }
+        
+        /* Professional Chat Interface */
+        .chat-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .chat-message {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            background: #f8fafc;
+        }
+        
+        /* Professional Components */
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Hide Streamlit Elements */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        .stDeployButton {visibility: hidden;
         }
         
         /* Chat interface styling */
@@ -289,12 +381,23 @@ def initialize_session_state():
             st.session_state[key] = value
 
 def render_header():
-    """Render the main application header."""
+    """Render the professional main header with enhanced branding."""
     st.markdown("""
     <div class="main-header">
-        <h1>🤖 AI Customer Service Platform</h1>
-        <p>Training Phase 3a: Basic UI Framework</p>
-        <p style="font-size: 0.9rem; opacity: 0.8;">Learn to design and build AI-powered applications with modern interfaces</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="font-size: 3rem;">🤖</div>
+            <div style="text-align: left;">
+                <h1 style="margin: 0; font-size: 2.5rem; font-weight: 700; letter-spacing: -0.025em;">AI Customer Service Platform</h1>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.5rem;">
+                    <span style="padding: 0.25rem 0.75rem; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 0.875rem; font-weight: 500;">Training Phase 3a</span>
+                    <span style="padding: 0.25rem 0.75rem; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 0.875rem; font-weight: 500;">Basic UI Framework</span>
+                    <span style="padding: 0.25rem 0.75rem; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 0.875rem; font-weight: 500;">Hands-on Learning</span>
+                </div>
+            </div>
+        </div>
+        <p style="margin: 0; font-size: 1.1rem; opacity: 0.9; font-weight: 400; max-width: 600px; margin: 0 auto; line-height: 1.5;">
+            Learn to design and build AI-powered applications with modern professional interfaces
+        </p>
     </div>
     """, unsafe_allow_html=True)
 

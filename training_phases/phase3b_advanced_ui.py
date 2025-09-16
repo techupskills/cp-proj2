@@ -1092,6 +1092,81 @@ def render_settings_tab():
     if st.button("🔄 Reset to Defaults", use_container_width=True):
         st.warning("Settings reset to default values.")
 
+def render_admin_panel():
+    """Render advanced admin panel with view switching and controls."""
+    # Initialize admin state
+    if 'show_admin_panel' not in st.session_state:
+        st.session_state.show_admin_panel = False
+    
+    # Add admin controls to sidebar
+    with st.sidebar:
+        st.markdown("---")
+        st.markdown("### ⚙️ Admin Controls")
+        
+        # Admin panel toggle
+        if st.button("🛠️ Quick Dashboard Switcher", key="admin_toggle", help="Switch between dashboard views", use_container_width=True):
+            st.session_state.show_admin_panel = not st.session_state.show_admin_panel
+        
+        # Keyboard shortcuts info
+        with st.expander("⌨️ Keyboard Shortcuts", expanded=False):
+            st.markdown("""
+            **Quick Navigation:**
+            - `Ctrl + 1`: Overview Dashboard
+            - `Ctrl + 2`: Analytics Dashboard  
+            - `Ctrl + 3`: Performance Monitor
+            - `Ctrl + 4`: Settings Panel
+            """)
+    
+    # Show admin panel when activated
+    if st.session_state.show_admin_panel:
+        st.markdown("---")
+        
+        # Create a prominent admin panel
+        with st.container():
+            st.markdown("""
+            <div style="
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                border: 2px solid #3b82f6;
+                border-radius: 16px;
+                padding: 1.5rem;
+                margin: 1rem 0;
+                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+            ">
+            """, unsafe_allow_html=True)
+            
+            st.markdown("### 🛠️ Advanced Admin Panel - Dashboard Switcher")
+            st.markdown("**Switch between dashboard views:**")
+            
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                if st.button("📊 Overview", key="admin_overview", use_container_width=True, type="primary"):
+                    st.session_state.current_tab = "Overview"
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            with col2:
+                if st.button("📈 Analytics", key="admin_analytics", use_container_width=True, type="primary"):
+                    st.session_state.current_tab = "Analytics"
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            with col3:
+                if st.button("⚡ Performance", key="admin_performance", use_container_width=True, type="primary"):
+                    st.session_state.current_tab = "Performance"
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            with col4:
+                if st.button("⚙️ Settings", key="admin_settings", use_container_width=True, type="primary"):
+                    st.session_state.current_tab = "Settings"
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            
+            st.markdown("**Advanced Features:** Real-time monitoring, export capabilities, dashboard customization")
+            
+            if st.button("✖️ Close Admin Panel", key="admin_close", use_container_width=True):
+                st.session_state.show_admin_panel = False
+                st.rerun()
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+
 def main():
     """Main Streamlit application for advanced dashboard."""
     if not is_streamlit():
@@ -1123,6 +1198,9 @@ def main():
     
     # Render sidebar
     render_advanced_sidebar()
+    
+    # Render admin panel (always available)
+    render_admin_panel()
     
     # Render main content based on selected tab
     tab = st.session_state.current_tab

@@ -1079,6 +1079,102 @@ def process_integrated_query(platform: IntegratedCustomerServicePlatform, query:
     
     st.rerun()
 
+def render_integrated_admin_panel():
+    """Render complete integrated admin panel with all functionality."""
+    # Initialize admin state
+    if 'show_admin_panel' not in st.session_state:
+        st.session_state.show_admin_panel = False
+    
+    # Create the floating admin button with Streamlit button in a fixed container
+    with st.container():
+        # Create a floating admin button that actually works
+        admin_col1, admin_col2 = st.columns([9, 1])
+        with admin_col2:
+            # Position this button at the bottom right
+            st.markdown("""
+            <style>
+            .admin-floating-button {
+                position: fixed !important;
+                bottom: 30px !important;
+                right: 30px !important;
+                z-index: 9999 !important;
+                width: 60px !important;
+                height: 60px !important;
+                border-radius: 50% !important;
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+                border: none !important;
+                color: white !important;
+                font-size: 24px !important;
+                box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4) !important;
+                transition: all 0.3s ease !important;
+            }
+            .admin-floating-button:hover {
+                transform: scale(1.1) !important;
+                box-shadow: 0 12px 25px rgba(59, 130, 246, 0.6) !important;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            if st.button("⚙️", key="floating_admin_button", help="Admin Panel - Switch Views"):
+                st.session_state.show_admin_panel = not st.session_state.show_admin_panel
+                st.rerun()
+    
+    # Show popup when admin button is clicked
+    if st.session_state.show_admin_panel:
+        st.markdown("---")
+        
+        # Create a prominent popup box
+        with st.container():
+            st.markdown("""
+            <div style="
+                background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                border: 2px solid #3b82f6;
+                border-radius: 16px;
+                padding: 1.5rem;
+                margin: 1rem 0;
+                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+            ">
+            """, unsafe_allow_html=True)
+            
+            st.markdown("### 🛠️ Integrated Admin Panel - Complete Platform Control")
+            st.markdown("**Switch between all platform views:**")
+            
+            col1, col2, col3, col4, col5 = st.columns(5)
+            with col1:
+                if st.button("💬 Customer Chat", key="admin_customer", use_container_width=True, type="primary"):
+                    st.session_state.integration_mode = "Customer Chat"
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            with col2:
+                if st.button("📊 Analytics", key="admin_analytics", use_container_width=True, type="primary"):
+                    st.session_state.integration_mode = "Analytics Dashboard"
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            with col3:
+                if st.button("🤖 Agent Monitor", key="admin_agents", use_container_width=True, type="primary"):
+                    st.session_state.integration_mode = "Agent Monitor"
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            with col4:
+                if st.button("🔗 MCP Console", key="admin_mcp", use_container_width=True, type="primary"):
+                    st.session_state.integration_mode = "MCP Console"
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            with col5:
+                if st.button("⚙️ System Config", key="admin_config", use_container_width=True, type="primary"):
+                    st.session_state.integration_mode = "System Configuration"
+                    st.session_state.show_admin_panel = False
+                    st.rerun()
+            
+            st.markdown("**Advanced Features:** Complete integration, RAG enhancement, multi-agent coordination, MCP protocol")
+            st.markdown("**Keyboard Shortcuts:** `Ctrl+1/2/3/4/5` for quick navigation")
+            
+            if st.button("✖️ Close Admin Panel", key="admin_close", use_container_width=True):
+                st.session_state.show_admin_panel = False
+                st.rerun()
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+
 def main():
     """Main Streamlit application for integrated platform."""
     if not is_streamlit():
@@ -1106,6 +1202,9 @@ def main():
     # Render interface
     render_integration_header()
     render_integration_sidebar()
+    
+    # Render integrated admin panel (always available)
+    render_integrated_admin_panel()
     
     # Main content based on view
     if st.session_state.analytics_view == "Overview":
