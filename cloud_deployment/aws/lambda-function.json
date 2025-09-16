@@ -1,0 +1,26 @@
+{
+  "FunctionName": "ai-customer-service-lambda",
+  "Runtime": "python3.11",
+  "Role": "arn:aws:iam::YOUR_ACCOUNT_ID:role/lambda-execution-role",
+  "Handler": "lambda_handler.lambda_handler",
+  "Code": {
+    "ZipFile": "fileb://lambda-deployment.zip"
+  },
+  "Description": "AI Customer Service Platform Lambda Function",
+  "Timeout": 30,
+  "MemorySize": 512,
+  "Environment": {
+    "Variables": {
+      "ENVIRONMENT": "production",
+      "LOG_LEVEL": "INFO",
+      "OLLAMA_BASE_URL": "https://your-ollama-endpoint.com"
+    }
+  },
+  "TracingConfig": {
+    "Mode": "Active"
+  },
+  "Tags": {
+    "Project": "AICustomerService",
+    "Environment": "Production"
+  }
+}

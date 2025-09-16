@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-customer-service
+  labels:
+    app: ai-customer-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ai-customer-service
+  template:
+    metadata:
+      labels:
+        app: ai-customer-service
+    spec:
+      containers:
+      - name: ai-customer-service
+        image: ACR_NAME.azurecr.io/ai-customer-service:latest
+        ports:
+        - containerPort: 8501
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: STREAMLIT_SERVER_PORT
+          value: "8501"
+        - name: STREAMLIT_SERVER_ADDRESS
+          value: "0.0.0.0"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: 8501
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /_stcore/health
+            port: 8501
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-customer-service
+  labels:
+    app: ai-customer-service
+spec:
+  selector:
+    app: ai-customer-service
+  ports:
+  - port: 80
+    targetPort: 8501
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ai-customer-service-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+  tls:
+  - hosts:
+    - your-domain.com
+    secretName: ai-customer-service-tls
+  rules:
+  - host: your-domain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-customer-service
+            port:
+              number: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-customer-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-customer-service
+  minReplicas: 2
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-customer-service-config
+data:
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  STREAMLIT_SERVER_PORT: "8501"
+  STREAMLIT_SERVER_ADDRESS: "0.0.0.0"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ai-customer-service-secrets
+type: Opaque
+stringData:
+  OLLAMA_API_KEY: "your-ollama-api-key"
+  DATABASE_URL: "your-database-connection-string"
