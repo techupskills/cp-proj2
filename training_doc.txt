@@ -1,0 +1,155 @@
+AI Enterprise Accelerator Training Led by Brent Laster
+
+This intensive Enterprise AI training equips professionals with the knowledge and hands-on skills to use AI productively in everyday work. Participants gain a strong foundation in modern AI concepts, practical experience with leading tools and frameworks, and the ability to design and implement AI-driven solutions. This course culminates in a capstone project, where attendees design, build, and deploy a working AI application — a portfolio piece they can bring back to their organizations.
+
+Day 0 – Optional Virtual Prep - Friday, Nov 21st (2 PM - 5 PM ET)
+
+AI Concepts & Readiness (Half-Day) Purpose: Ensure all participants start with a common vocabulary, conceptual grounding, and core AI knowledge.
+
+AI Foundations (90 min)
+
+• What AI really means for business
+• Key concepts: AI, ML, Generative AI, inference, LLMs, prompting
+• Business-relevant use cases
+• AI myths and realities
+
+AI Landscape & Environments (90 min)
+
+• The spectrum: models, assistants, agents
+• How we interact with AI: chatbots, IDEs, Python, APIs
+• Staying current with rapid AI change
+• What to expect in the 3-day bootcamp
+
+Day 1 – Models & Retrieval-Augmented Generation (RAG) - In person (Dec 1st)
+
+Purpose: Build fluency with AI models and how to extend them with your own business data.
+
+Understanding AI Models (90 min)
+
+• How LLMs work: embeddings, transformers, attention
+• Model landscape: reasoning, frontier, open-source models
+• Training, tuning, and parameters
+
+Using AI Models (90 min)
+
+• Finding, running, and qualifying models
+• Hands-on: fine-tuning models for business contexts
+
+Understanding RAG (90 min)
+
+• Why models alone are not enough
+• RAG explained and alternatives
+• Vector databases and data pipelines
+
+Applying RAG (90 min)
+
+• Ingesting and parsing enterprise data
+• Prompting templates and frameworks
+• Hands-on: building agentic RAG with curated datasets
+
+Day 2 – AI Agents & Model Context Protocol (MCP) - In-Person (Dec 2nd)
+
+Purpose: Learn to build AI agents that can reason, use tools, and connect to business systems.
+
+AI Agents Part 1 (90 min)
+
+- Motivations and use cases for agents
+
+- What agents are and how they work
+
+- Chain of thought, memory, data management
+
+- Hands-on: creating an AI agent that leverages tools
+
+AI Agents Part 2 (90 min)
+
+• Multi-agent design patterns
+• Using RAG with agents
+
+- Hands-on: Creating an AI agent to process structured business data
+  with canonical queries
+
+- Future of AI agents in enterprise workflows
+
+MCP Part 1 (90 min)
+
+- What MCP is and why it matters
+
+- MCP architecture, transports, features
+
+- Frameworks for MCP implementation
+
+- MCP clients and servers
+
+- Hands-on: Building an MCP server and client and using them with an
+  agent
+
+MCP Part 2 (90 min)
+
+• Connecting to MCP servers
+• Common patterns and pitfalls
+• Security and predictions for MCP adoption
+• Hands-on: How to leverage and use public MCP servers in your AI
+processes
+
+Day 3 – AI for Productivity & Capstone Project In-Person (Dec 3rd)
+
+Purpose: Apply AI directly to software development, collaboration, and real-world business scenarios. Build a complete working AI application as a capstone.
+
+Accelerating the SDLC with GitHub Copilot – Part 1 (90 min)
+
+• Copilot for planning, exploration, directives
+• Hands-on: AI in planning, development, and bug-fixing
+
+Accelerating the SDLC with GitHub Copilot – Part 2 (90 min)
+
+• Advanced Copilot features (Agent Mode, Vision, Edit)
+• Hands-on: testing, refactoring, documentation, onboarding
+
+Capstone Project Part 1 (90 min)
+
+• Designing an AI-powered application
+• Choosing a model, prompts, MCP integration
+• Hands-on: build the base app, MCP server, and agent
+
+Capstone Project Part 2 & Wrap-Up (90 min)
+
+• Hands-on: Adding RAG for local data
+• Hands-on: Building a chat interface
+• Hands-on: Hosting on a platform for shared use
+• Wrap-up: presenting solutions, next steps for AI adoption
+
+Why This Program Is Valuable to Businesses
+
+• Immediate Productivity Impact: Employees return with skills to use AI
+in daily workflows, accelerating development, analysis, and
+communication.
+• Future-Proofing Talent: Teams gain exposure to leading AI frameworks
+and practices, positioning your organization to adapt quickly as AI
+evolves.
+• Capstone Deliverable: Each participant builds and deploys a
+functioning AI application they can demonstrate and extend at work.
+• Hands-On & Practical: Significant course time in each session is
+dedicated to labs and project work.
+
+Why Companies Should Send Their Staff to This Training
+
+Investing in this Enterprise AI training with Brent Laster is a direct
+investment in your organization’s future. Here’s why companies across
+industries should prioritize sending their teams:
+
+1. **Expert Leadership** – Brent Laster’s deep expertise ensures staff
+learn best practices directly from a trusted industry leader who bridges
+theory and practice.
+2. **Immediate ROI** – Employees return with skills to accelerate
+software development, improve efficiency, and apply AI to real-world
+business needs on day one.
+3. **Future-Proofing** – As AI adoption accelerates, companies with
+trained staff will adapt faster to market shifts and technological
+disruption.
+4. **Capstone Deliverable** – Each participant completes a working AI
+project, delivering tangible proof of capability that can be extended
+within your organization.
+5. **Hands-On Focus** – The program dedicates significant time to labs
+and projects, ensuring practical skills—not just theory—are carried back
+to the workplace.
