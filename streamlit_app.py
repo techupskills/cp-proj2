@@ -801,6 +801,22 @@ def get_mcp_stats():
 
 def render_customer_view():
     """Render customer support interface with professional styling"""
+    # Customer email input (moved to top for better workflow)
+    customer_email = st.text_input(
+        "👤 Customer Email:",
+        value=st.session_state.get('customer_email', 'john.doe@email.com'),
+        placeholder="Enter customer email address...",
+        help="Enter the customer's email address and press Enter to load their context",
+        key="customer_email_input"
+    )
+    
+    # Update customer email if changed
+    if customer_email != st.session_state.get('customer_email'):
+        st.session_state.customer_email = customer_email
+        st.success(f"✅ Switched to {customer_email}")
+    
+    st.markdown("---")
+    
     # Chat header section
     st.markdown("""
     <div class="chat-container">
